@@ -1,0 +1,49 @@
+{
+  "name": "envcheck-cli",
+  "version": "1.0.0",
+  "description": "Zero-dependency CLI tool for validating environment variables across codebases",
+  "type": "module",
+  "bin": {
+    "envcheck": "./bin/envcheck.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "benchmark": "node benchmarks/benchmark.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "cli",
+    "environment-variables",
+    "env",
+    "validation",
+    "dotenv",
+    "linter",
+    "env-check",
+    "environment",
+    "config",
+    "devops",
+    "ci-cd"
+  ],
+  "author": "Bitreon",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RealBitreon/envcheck-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RealBitreon/envcheck-cli/issues"
+  },
+  "homepage": "https://github.com/RealBitreon/envcheck-cli#readme",
+  "files": [
+    "bin/",
+    "src/",
+    "LICENSE",
+    "README.md"
+  ],
+  "devDependencies": {
+    "fast-check": "^4.6.0"
+  }
+}

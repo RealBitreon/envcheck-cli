@@ -1,0 +1,28 @@
+# Test files
+test/
+*.test.js
+test-*.js
+test-*.tmp
+
+# Documentation
+docs/
+ROADMAP.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+
+# CI/CD
+.github/
+.vscode/
+.kiro/
+
+# Development files
+benchmarks/
+*.log
+.DS_Store
+.env*
+!.env.example
+
+# Git
+.git/
+.gitignore
+.gitattributes

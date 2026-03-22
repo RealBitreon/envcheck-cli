@@ -1,0 +1,24 @@
+# Auto-label PRs based on changed files
+
+documentation:
+  - '**/*.md'
+  - 'docs/**/*'
+
+tests:
+  - 'test/**/*'
+  - '**/*.test.js'
+
+ci-cd:
+  - '.github/**/*'
+
+language-support:
+  - 'src/scanners/**/*'
+
+core:
+  - 'src/scanner.js'
+  - 'src/parser.js'
+  - 'src/utils.js'
+
+dependencies:
+  - 'package.json'
+  - 'package-lock.json'

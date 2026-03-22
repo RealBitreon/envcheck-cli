@@ -1,0 +1,15 @@
+{
+  "name": "envcheck-example-project",
+  "version": "1.0.0",
+  "description": "Example project demonstrating envcheck usage",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "env:check": "envcheck .",
+    "env:check:ci": "envcheck . --format json --fail-on missing",
+    "pretest": "npm run env:check"
+  },
+  "devDependencies": {
+    "envcheck": "^1.0.0"
+  }
+}

@@ -1,0 +1,28 @@
+name: Greetings
+
+on: [pull_request_target, issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: |
+          👋 Thanks for opening your first issue! We appreciate you taking the time to contribute to envcheck-cli.
+          
+          A maintainer will review this soon. In the meantime, please make sure you've provided all the necessary details.
+        pr-message: |
+          🎉 Thanks for opening your first PR! We're excited to review your contribution.
+          
+          Please make sure:
+          - [ ] Tests pass (`npm test`)
+          - [ ] Code follows the existing style
+          - [ ] You've updated documentation if needed
+          
+          A maintainer will review this soon!

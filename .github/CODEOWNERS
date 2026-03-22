@@ -1,0 +1,22 @@
+# Code owners for envcheck-cli
+# These users will be automatically requested for review when PRs modify these files
+
+# Default owners for everything
+* @bitreon
+
+# Language scanners
+/src/scanners/ @bitreon
+
+# Core functionality
+/src/scanner.js @bitreon
+/src/parser.js @bitreon
+
+# Documentation
+/docs/ @bitreon
+*.md @bitreon
+
+# CI/CD
+/.github/ @bitreon
+
+# Tests
+/test/ @bitreon

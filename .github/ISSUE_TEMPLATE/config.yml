@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/bitreon/envcheck-cli/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📚 Documentation
+    url: https://github.com/bitreon/envcheck-cli#readme
+    about: Read the documentation and examples
+  - name: 🔒 Security Issue
+    url: https://github.com/bitreon/envcheck-cli/security/advisories/new
+    about: Report a security vulnerability privately

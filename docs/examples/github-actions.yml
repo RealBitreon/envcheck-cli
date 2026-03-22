@@ -1,0 +1,141 @@
+# GitHub Actions Workflow Example for envcheck
+# Place this file in .github/workflows/envcheck.yml
+
+name: Environment Variable Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  envcheck:
+    name: Validate Environment Variables
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install envcheck
+        run: npm install -g envcheck
+      
+      - name: Run envcheck with GitHub annotations
+        run: envcheck . --format github --fail-on missing
+        continue-on-error: true
+        id: envcheck
+      
+      - name: Run envcheck with JSON output
+        run: envcheck . --format json --fail-on all > envcheck-report.json
+        continue-on-error: true
+      
+      - name: Upload envcheck report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: envcheck-report
+          path: envcheck-report.json
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('envcheck-report.json', 'utf8'));
+            
+            const { missing, unused, undocumented, summary } = report;
+            
+            let comment = '## 🔍 Environment Variable Check Results\n\n';
+            
+            if (summary.totalMissing === 0 && summary.totalUnused === 0 && summary.totalUndocumented === 0) {
+              comment += '✅ All environment variables are properly configured!\n';
+            } else {
+              if (missing.length > 0) {
+                comment += '### 🔴 Missing Variables\n';
+                comment += 'Variables used in code but not in .env.example:\n';
+                missing.forEach(item => {
+                  comment += `- \`${item.varName}\`\n`;
+                  item.references.slice(0, 3).forEach(ref => {
+                    comment += `  - ${ref.filePath}:${ref.lineNumber}\n`;
+                  });
+                });
+                comment += '\n';
+              }
+              
+              if (unused.length > 0) {
+                comment += '### 🟡 Unused Variables\n';
+                comment += 'Variables in .env.example but never used:\n';
+                unused.forEach(item => {
+                  comment += `- \`${item.varName}\`\n`;
+                });
+                comment += '\n';
+              }
+              
+              if (undocumented.length > 0) {
+                comment += '### 🟢 Undocumented Variables\n';
+                comment += 'Variables missing inline comments:\n';
+                undocumented.forEach(item => {
+                  comment += `- \`${item.varName}\`\n`;
+                });
+                comment += '\n';
+              }
+            }
+            
+            comment += `\n**Summary:** ${summary.totalMissing} missing, ${summary.totalUnused} unused, ${summary.totalUndocumented} undocumented`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+      
+      - name: Fail if critical issues found
+        if: steps.envcheck.outcome == 'failure'
+        run: exit 1
+
+  # Alternative: Simple workflow for quick checks
+  envcheck-simple:
+    name: Quick Environment Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install and run envcheck
+        run: |
+          npm install -g envcheck
+          envcheck . --fail-on missing
+
+  # Alternative: Matrix testing across multiple Node versions
+  envcheck-matrix:
+    name: Validate on Node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18, 20, 21]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Run envcheck
+        run: |
+          npm install -g envcheck
+          envcheck . --format text --fail-on all

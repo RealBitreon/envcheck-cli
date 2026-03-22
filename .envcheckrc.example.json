@@ -1,0 +1,18 @@
+{
+  "path": ".",
+  "envFile": ".env.example",
+  "format": "text",
+  "failOn": "none",
+  "ignore": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".git/**",
+    "**/*.test.js",
+    "**/*.spec.js"
+  ],
+  "noColor": false,
+  "quiet": false,
+  "suggestions": true,
+  "progress": true
+}

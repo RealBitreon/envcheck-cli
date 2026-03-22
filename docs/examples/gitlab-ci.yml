@@ -1,0 +1,154 @@
+# GitLab CI/CD Pipeline Example for envcheck
+# Place this file in .gitlab-ci.yml or include it in your existing pipeline
+
+stages:
+  - validate
+  - test
+  - deploy
+
+# Environment variable validation job
+envcheck:
+  stage: validate
+  image: node:18-alpine
+  
+  before_script:
+    - npm install -g envcheck
+  
+  script:
+    - envcheck . --format text --fail-on missing
+  
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  
+  allow_failure: false
+
+# Alternative: Generate JSON report and upload as artifact
+envcheck:report:
+  stage: validate
+  image: node:18-alpine
+  
+  before_script:
+    - npm install -g envcheck
+  
+  script:
+    - envcheck . --format json --fail-on all > envcheck-report.json || true
+    - cat envcheck-report.json
+  
+  artifacts:
+    reports:
+      # GitLab can parse this as a code quality report
+      codequality: envcheck-report.json
+    paths:
+      - envcheck-report.json
+    expire_in: 30 days
+    when: always
+  
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# Alternative: Run envcheck before tests
+test:
+  stage: test
+  image: node:18-alpine
+  
+  before_script:
+    - npm install -g envcheck
+    - npm ci
+  
+  script:
+    # Validate environment variables first
+    - envcheck . --fail-on missing
+    # Then run tests
+    - npm test
+  
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  
+  artifacts:
+    reports:
+      junit: junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+# Alternative: Strict validation for production deployments
+envcheck:production:
+  stage: validate
+  image: node:18-alpine
+  
+  before_script:
+    - npm install -g envcheck
+  
+  script:
+    # Fail on any issues for production
+    - envcheck . --env-file .env.production.example --format text --fail-on all
+  
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  
+  allow_failure: false
+
+# Alternative: Multi-environment validation
+.envcheck_template: &envcheck_template
+  stage: validate
+  image: node:18-alpine
+  before_script:
+    - npm install -g envcheck
+
+envcheck:development:
+  <<: *envcheck_template
+  script:
+    - envcheck . --env-file .env.development.example --fail-on missing
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+envcheck:staging:
+  <<: *envcheck_template
+  script:
+    - envcheck . --env-file .env.staging.example --fail-on all
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+
+envcheck:production:
+  <<: *envcheck_template
+  script:
+    - envcheck . --env-file .env.production.example --fail-on all
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+# Alternative: Scheduled daily validation
+envcheck:scheduled:
+  stage: validate
+  image: node:18-alpine
+  
+  before_script:
+    - npm install -g envcheck
+  
+  script:
+    - envcheck . --format json --fail-on all
+  
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  
+  allow_failure: true
+
+# Alternative: With custom ignore patterns
+envcheck:custom:
+  stage: validate
+  image: node:18-alpine
+  
+  before_script:
+    - npm install -g envcheck
+  
+  script:
+    - |
+      envcheck . \
+        --format text \
+        --fail-on missing \
+        --ignore "**/*.test.js" \
+        --ignore "**/__tests__/**" \
+        --ignore "**/dist/**"
+  
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
