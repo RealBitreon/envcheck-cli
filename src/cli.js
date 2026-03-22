@@ -1,4 +1,4 @@
-WWWimport { readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { validateGlobPattern } from './ignore.js';
