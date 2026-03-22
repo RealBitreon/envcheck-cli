@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Kiro IDE files
+.kiro/
+
 # Build outputs
 dist/
 build/
